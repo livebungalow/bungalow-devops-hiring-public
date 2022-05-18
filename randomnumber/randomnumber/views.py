@@ -1,7 +1,6 @@
 from django.http import JsonResponse
-from django.utils import timezone
 
-from .service import get_random_number
+from .service import get_host, get_random_number
 
 
 def indexPageView(request):
@@ -10,5 +9,7 @@ def indexPageView(request):
         "Time": str(rn.created_at),
         "Number": rn.number,
     }
+    response = JsonResponse(output, status=200)
+    response["X-Origin-Server"] = get_host()
 
-    return JsonResponse(output)
+    return response
