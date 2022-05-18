@@ -60,3 +60,42 @@ module "worker_2_ec2_instance" {
     Function = "Docker Host"
   }
 }
+
+resource "aws_instance" "worker_1_copy" {
+  provisioner "file" {
+    source      = "../randomnumber"
+    destination = "/home/ec2-user"
+  }
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file("./worker_key.pem")
+    host        = module.worker_1_ec2_instance.id.public_dns
+  }
+  depends_on = [
+    module.worker_1_ec2_instance
+  ]
+}
+
+resource "aws_instance" "worker_1_exec" {
+  provisioner "remote-exec" {
+    inline = [
+      "cd randomnumber",
+      "python -m venv .venv",
+      "source .venv/bin/activate",
+      "python -m pip install -r requirements.txt",
+      "python manage.py migrate",
+      "python manage.py createsuperuser",
+      "python manage.py runserver",
+    ]
+  }
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file("./worker_key.pem")
+    host        = module.worker_1_ec2_instance.id.public_dns
+  }
+  depends_on = [
+    module.worker_1_ec2_instance
+  ]
+}

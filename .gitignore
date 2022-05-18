@@ -163,3 +163,6 @@ override.tf.json
 
 # VSCode
 .vscode/
+
+# Other
+*.pem
