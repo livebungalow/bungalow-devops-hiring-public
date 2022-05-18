@@ -1,5 +1,6 @@
-from .models import RandomNumber
 from socket import gethostname
+
+from .models import RandomNumber
 
 
 def get_random_number() -> RandomNumber:
