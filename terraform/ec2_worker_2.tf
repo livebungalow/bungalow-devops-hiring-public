@@ -61,7 +61,7 @@ module "worker_2_ec2_instance" {
   }
 }
 
-resource "aws_instance" "worker_1_copy" {
+resource "aws_instance" "worker_2_copy" {
   provisioner "file" {
     source      = "../randomnumber"
     destination = "/home/ec2-user"
@@ -77,7 +77,7 @@ resource "aws_instance" "worker_1_copy" {
   ]
 }
 
-resource "aws_instance" "worker_1_exec" {
+resource "aws_instance" "worker_2_exec" {
   provisioner "remote-exec" {
     inline = [
       "cd randomnumber",
