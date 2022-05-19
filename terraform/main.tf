@@ -43,12 +43,12 @@ locals {
   prefix      = "${lower(local.environment)}-${lower(var.project)}"
 }
 
-data "aws_ami" "amz_linux2_ami" {
+data "aws_ami" "ubuntu_ami" {
   most_recent = false
-  owners      = ["amazon"]
+  owners      = ["099720109477"]
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-2.0.20220426.0-x86_64-ebs"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-20220511"]
   }
 }

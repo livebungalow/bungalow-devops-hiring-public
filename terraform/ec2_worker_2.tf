@@ -43,7 +43,7 @@ module "worker_2_ec2_instance" {
 
   iam_instance_profile = aws_iam_instance_profile.worker_2_ec2_instance_profile.name
 
-  ami                    = "ami-0ecb01759a1945ea3"
+  ami                    = data.aws_ami.ubuntu_ami.id
   instance_type          = "t2.nano"
   key_name               = "worker_key"
   monitoring             = true
@@ -59,6 +59,9 @@ module "worker_2_ec2_instance" {
     Name     = "${local.worker_2_ec2}-instance"
     Function = "Docker Host"
   }
+  depends_on = [
+    module.main-vpc
+  ]
 }
 
 resource "null_resource" "worker_2_copy" {
@@ -78,13 +81,15 @@ resource "null_resource" "worker_2_copy" {
     host        = module.worker_2_ec2_instance.public_ip
   }
   depends_on = [
-    module.worker_2_ec2_instance
+    module.worker_2_ec2_instance,
+    module.main-vpc
   ]
 }
 
 resource "null_resource" "worker_2_exec" {
   provisioner "remote-exec" {
     inline = [
+      "sleep 1",
       "sudo apt update",
       "sudo apt install -y python3-pip sqlite3 python3.8-venv",
       "cd randomnumber",
