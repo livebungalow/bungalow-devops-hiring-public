@@ -60,6 +60,7 @@ module "worker_1_ec2_instance" {
     Function = "Docker Host"
   }
   depends_on = [
+    aws_security_group.sg,
     module.main-vpc
   ]
 }
