@@ -4,7 +4,7 @@ resource "aws_security_group" "sg" {
   vpc_id      = module.main-vpc.vpc_id
 
   tags = {
-    Name = "${local.worker_1_ec2}-sg"
+    Name = "${local.prefix}-sg"
   }
 }
 

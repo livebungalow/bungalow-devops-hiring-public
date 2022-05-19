@@ -5,17 +5,17 @@ variable "region" {
 
 variable "project" {
   type    = string
-  default = "it"
+  default = "sandbox"
 }
 
 variable "resource_group" {
   type    = string
-  default = "network"
+  default = "sandbox"
 }
 
 variable "repo_name" {
   type    = string
-  default = "bungalow-it"
+  default = "bungalow-devops-hiring-public"
 }
 
 variable "automated" {
