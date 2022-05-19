@@ -43,7 +43,7 @@ module "worker_2_ec2_instance" {
 
   iam_instance_profile = aws_iam_instance_profile.worker_2_ec2_instance_profile.name
 
-  ami                    = data.aws_ami.amz_linux2_ami.id
+  ami                    = "ami-0ecb01759a1945ea3"
   instance_type          = "t2.nano"
   key_name               = "worker_key"
   monitoring             = true
@@ -53,7 +53,7 @@ module "worker_2_ec2_instance" {
 
   associate_public_ip_address = true
 
-  ebs_optimized = true
+  ebs_optimized = false
 
   tags = {
     Name     = "${local.worker_2_ec2}-instance"
@@ -61,40 +61,56 @@ module "worker_2_ec2_instance" {
   }
 }
 
-resource "aws_instance" "worker_2_copy" {
+resource "null_resource" "worker_2_copy" {
   provisioner "file" {
     source      = "../randomnumber"
-    destination = "/home/ec2-user"
+    destination = "/home/ubuntu/randomnumber"
   }
+
+  triggers = {
+    policy_sha1 = "${sha1(file("../randomnumber/manage.py"))}"
+  }
+
   connection {
     type        = "ssh"
-    user        = "ec2-user"
+    user        = "ubuntu"
     private_key = file("./worker_key.pem")
-    host        = module.worker_1_ec2_instance.id.public_dns
+    host        = module.worker_2_ec2_instance.public_ip
   }
   depends_on = [
-    module.worker_1_ec2_instance
+    module.worker_2_ec2_instance
   ]
 }
 
-resource "aws_instance" "worker_2_exec" {
+resource "null_resource" "worker_2_exec" {
   provisioner "remote-exec" {
     inline = [
+      "sudo apt update",
+      "sudo apt install -y python3-pip sqlite3 python3.8-venv",
       "cd randomnumber",
-      "python -m venv .venv",
+      "python3 -m venv .venv",
       "source .venv/bin/activate",
-      "python -m pip install -r requirements.txt",
-      "python manage.py migrate",
-      "python manage.py runserver",
+      "python3 -m pip install -r requirements.txt",
+      "python3 manage.py migrate",
+      "nohup python3 manage.py runserver 0.0.0.0:8000 &",
+      "sleep 5"
     ]
   }
+
+  triggers = {
+    policy_sha1 = "${sha1(file("./ec2_worker_2.tf"))}"
+  }
+
+
   connection {
     type        = "ssh"
-    user        = "ec2-user"
+    user        = "ubuntu"
     private_key = file("./worker_key.pem")
-    host        = module.worker_1_ec2_instance.id.public_dns
+    host        = module.worker_2_ec2_instance.public_ip
   }
   depends_on = [
-    module.worker_1_ec2_instance
+    module.worker_2_ec2_instance,
+    null_resource.worker_2_copy
   ]
 }
+

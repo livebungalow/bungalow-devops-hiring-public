@@ -19,7 +19,7 @@ resource "aws_security_group_rule" "ec2_sg_rule_egress_all" {
   security_group_id = aws_security_group.sg.id
 }
 
-resource "aws_security_group_rule" "ec2_sg_http_rule_ingress_self" {
+resource "aws_security_group_rule" "ec2_sg_self_rule_ingress" {
   description = "Allow ingress from self"
   type        = "ingress"
   from_port   = 0
@@ -46,6 +46,17 @@ resource "aws_security_group_rule" "sg_http_rule_ingress" {
   type        = "ingress"
   from_port   = 80
   to_port     = 80
+  protocol    = "TCP"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  security_group_id = aws_security_group.sg.id
+}
+
+resource "aws_security_group_rule" "sg_web_app_rule_all_ingress" {
+  description = "Allow Web App All ingress"
+  type        = "ingress"
+  from_port   = 8000
+  to_port     = 8000
   protocol    = "TCP"
   cidr_blocks = ["0.0.0.0/0"]
 
